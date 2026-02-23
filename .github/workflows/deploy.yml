@@ -1,0 +1,49 @@
+name: Microservices CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: pip install -r api-gateway/requirements.txt
+
+    - name: Validate API Gateway syntax
+      run: python -m py_compile api-gateway/app.py && echo "API Gateway syntax check passed!"
+
+    - name: Build API Gateway image
+      run: docker build -t api-gateway ./api-gateway
+
+    - name: Build Frontend image
+      run: docker build -t frontend ./frontend
+
+    - name: Start all services
+      run: docker-compose up -d
+
+    - name: Wait for services
+      run: sleep 10
+
+    - name: Check running containers
+      run: docker-compose ps
+
+    - name: Test API Gateway health
+      run: |
+        curl -f http://localhost:5000/api/health && echo "API Gateway is healthy!"
+
+    - name: Stop services
+      run: docker-compose down
+
+    - name: Deployment success
+      run: echo "All microservices built and tested successfully!"

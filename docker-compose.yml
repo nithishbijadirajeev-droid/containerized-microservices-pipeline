@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: database-service
+      DB_NAME: microservicesdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - database-service
+    networks:
+      - microservices-network
+
+  database-service:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: microservicesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
