@@ -30,20 +30,20 @@ jobs:
       run: docker build -t frontend ./frontend
 
     - name: Start all services
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Wait for services
       run: sleep 10
 
     - name: Check running containers
-      run: docker-compose ps
+      run: docker compose ps
 
     - name: Test API Gateway health
       run: |
         curl -f http://localhost:5000/api/health && echo "API Gateway is healthy!"
 
     - name: Stop services
-      run: docker-compose down
+      run: docker compose down
 
     - name: Deployment success
       run: echo "All microservices built and tested successfully!"
